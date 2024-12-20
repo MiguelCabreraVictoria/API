@@ -1,0 +1,53 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - db-network
+
+  mongo-db:
+    image: mongo:latest
+    container_name: mongo-container
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes: 
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - db-network
+
+  node-app:
+    build: .
+    container_name: node-app-container
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env 
+    volumes:
+      - .:/app
+    networks:
+      - db-network
+    depends_on:
+      - mysql-db
+      - mongo-db
+
+volumes:
+  mysql-data:
+  mongodb_data:
+
+networks:
+  db-network:
+    driver: bridge
