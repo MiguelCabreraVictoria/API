@@ -27,6 +27,17 @@ services:
     networks:
       - db-network
 
+  cache:
+    image: redis:latest
+    container_name: redis_container
+    restart: always
+    ports: 
+      - '6379:6379'
+    volumes:
+      - cache:/data
+    networks:
+      - db-network
+    
   node-app:
     build: .
     container_name: node-app-container
@@ -43,10 +54,12 @@ services:
     depends_on:
       - mysql-db
       - mongo-db
+      - cache
 
 volumes:
   mysql-data:
   mongodb_data:
+  cache:
 
 networks:
   db-network:
